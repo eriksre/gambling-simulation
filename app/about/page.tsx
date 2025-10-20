@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import Script from 'next/script';
 import Link from 'next/link';
 
 type LeadershipProfile = {
@@ -34,18 +33,52 @@ const leadershipProfiles: LeadershipProfile[] = [
 
 export default function AboutPage() {
   useEffect(() => {
-    window.LIRenderAll?.();
+    const scriptId = 'linkedin-badge-script';
+    const existingScript = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+    const renderBadges = () => {
+      window.LIRenderAll?.();
+      // Defer sizing tweaks until LinkedIn injects the iframe.
+      window.setTimeout(() => {
+        document
+          .querySelectorAll<HTMLIFrameElement>('.linkedin-embed iframe')
+          .forEach((iframe) => {
+            iframe.style.width = '100%';
+            iframe.style.minHeight = '360px';
+            iframe.style.border = '0';
+            iframe.style.borderRadius = '1.25rem';
+          });
+      }, 400);
+    };
+
+    if (existingScript) {
+      if (existingScript.dataset.rendered === 'true') {
+        renderBadges();
+      } else {
+        existingScript.addEventListener('load', renderBadges, { once: true });
+      }
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.src = 'https://platform.linkedin.com/badges/js/profile.js';
+    script.async = true;
+    script.defer = true;
+    script.dataset.rendered = 'false';
+    script.addEventListener('load', () => {
+      script.dataset.rendered = 'true';
+      renderBadges();
+    });
+    document.body.appendChild(script);
+
+    return () => {
+      script.removeEventListener('load', renderBadges);
+    };
   }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <Script
-        src="https://platform.linkedin.com/badges/js/profile.js"
-        strategy="afterInteractive"
-        id="linkedin-badges-init"
-        onLoad={() => window.LIRenderAll?.()}
-        onReady={() => window.LIRenderAll?.()}
-      />
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-14 px-6 py-24 lg:px-10">
         <header className="flex flex-col items-center gap-5 text-center">
           <p className="text-xs uppercase tracking-[0.32em] text-slate-400">
@@ -84,7 +117,7 @@ export default function AboutPage() {
               </div>
 
               <div className="mt-8 flex-1 rounded-2xl border border-white/10 bg-slate-950/60 p-4 shadow-inner">
-                <div className="linkedin-embed min-h-[330px] w-full">
+                <div className="linkedin-embed min-h-[360px] w-full overflow-hidden">
                   <div
                     className="badge-base LI-profile-badge"
                     data-locale="en_US"
