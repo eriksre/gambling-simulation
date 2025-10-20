@@ -25,17 +25,24 @@ function applyThemeToDocument(mode: Theme) {
   const color = THEME_COLORS[mode];
   document.documentElement.setAttribute('data-theme', mode);
 
-  const selector = 'meta[name="theme-color"][data-managed="app-theme"]';
-  let meta = document.querySelector(selector) as HTMLMetaElement | null;
+  const metas = Array.from(
+    document.querySelectorAll('meta[name="theme-color"]')
+  ) as HTMLMetaElement[];
 
-  if (!meta) {
-    meta = document.createElement('meta');
+  if (metas.length === 0) {
+    const meta = document.createElement('meta');
     meta.setAttribute('name', 'theme-color');
-    meta.setAttribute('data-managed', 'app-theme');
     document.head.appendChild(meta);
+    metas.push(meta);
   }
 
-  meta.setAttribute('content', color);
+  metas.forEach((meta) => {
+    meta.setAttribute('content', color);
+    meta.setAttribute('data-managed', 'app-theme');
+    if (meta.hasAttribute('media')) {
+      meta.removeAttribute('media');
+    }
+  });
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
