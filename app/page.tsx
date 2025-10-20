@@ -25,6 +25,7 @@ import {
   createSeededRandom,
 } from './lib/simulation';
 import type { SimulationLine } from './lib/simulation';
+import { useTheme } from './lib/theme-context';
 
 ChartJS.register(
   CategoryScale,
@@ -86,6 +87,12 @@ export default function Home() {
   const [settings, setSettings] = useState<SimulationSettings>(defaultSettings);
   const [runCount, setRunCount] = useState<number>(1);
   const [baseSeed, setBaseSeed] = useState<number>(BASELINE_SEED);
+  const { theme } = useTheme();
+  const axisColor = theme === 'dark' ? 'rgba(203, 213, 225, 0.75)' : '#4b5563';
+  const axisGrid = theme === 'dark' ? 'rgba(148, 163, 184, 0.18)' : 'rgba(100, 116, 139, 0.18)';
+  const chartBackground = theme === 'dark' ? '#131425' : 'var(--surface-bg)';
+  const chartShadow =
+    theme === 'dark' ? '0 30px 60px rgba(12, 12, 25, 0.55)' : 'var(--card-shadow)';
 
   const machine = settings.machine;
 
@@ -238,11 +245,16 @@ export default function Home() {
         },
         y: {
           grid: {
-            display: false,
+            display: true,
+            color: axisGrid,
+            drawBorder: false,
+            drawTicks: false,
+            lineWidth: 1,
           },
           ticks: {
             display: true,
-            color: '#A0AEC0',
+            color: axisColor,
+            padding: 12,
             callback: (value: string | number) => {
               if (typeof value === 'string') {
                 return value;
@@ -258,7 +270,7 @@ export default function Home() {
         },
       },
     };
-  }, []);
+  }, [axisColor, axisGrid]);
 
   const handleMachineChange = useCallback(
     (nextMachine: MachineType) => {
@@ -363,62 +375,90 @@ export default function Home() {
   const shouldFadeRuns = Math.min(runCount, MAX_DISPLAY_RUNS) > 1;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-10 px-6 py-10 lg:px-10">
-        <header className="flex flex-col gap-3">
-          <span className="text-sm uppercase tracking-[0.35em] text-slate-400">
+    <div className="min-h-screen relative overflow-hidden" style={{ background: 'var(--background)' }}>
+      <div className="fixed inset-0 opacity-40 dark:opacity-100 transition-opacity" style={{ background: 'linear-gradient(to bottom right, var(--gradient-from), transparent)' }} />
+      <div className="fixed inset-0 backdrop-blur-[120px]" style={{ background: 'radial-gradient(circle at 20% 20%, var(--gradient-from) 0%, transparent 50%)' }} />
+
+      <div className="relative mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-12 px-6 py-16 lg:px-12">
+        <header className="flex flex-col gap-4">
+          <span className="text-xs uppercase tracking-[0.4em] font-medium" style={{ color: 'var(--label-text)' }}>
             Monte Carlo casino lab
           </span>
-          <h1 className="text-4xl font-semibold text-slate-50 md:text-5xl">
-            Explore how variance hits your bankroll
+          <h1 className="text-5xl font-bold md:text-6xl lg:text-7xl leading-tight" style={{ color: 'var(--foreground)' }}>
+            Explore how variance<br />hits your bankroll
           </h1>
         </header>
 
-        <section className="grid gap-8 lg:grid-cols-[320px_1fr]">
-          <div className="flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur">
+        <section className="grid gap-10 lg:grid-cols-[340px_1fr]">
+          <div className="flex flex-col gap-8">
             <div>
-              <h2 className="text-lg font-semibold text-slate-100">Game mode</h2>
-              <div className="mt-4 grid grid-cols-2 gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.2em] mb-4" style={{ color: 'var(--text-muted)' }}>Game mode</h2>
+              <div className="grid grid-cols-2 gap-4">
                 <button
                   onClick={() => handleMachineChange('slot')}
-                  className={`rounded-xl border px-4 py-3 text-left transition-all ${machine === 'slot'
-                      ? 'border-indigo-400 bg-indigo-500/20 text-indigo-100 shadow-[0_10px_40px_-20px_rgba(99,102,241,0.7)]'
-                      : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10'
-                    }`}
+                  className="pressable group relative px-6 py-4 text-left rounded-3xl"
+                  style={{ color: machine === 'slot' ? 'var(--foreground)' : 'var(--text-muted)' }}
                 >
-                  <span className="block text-sm font-medium uppercase tracking-wide text-slate-300">
+                  <div
+                    className="absolute inset-0 rounded-3xl"
+                    style={{
+                      background: machine === 'slot'
+                        ? 'linear-gradient(to bottom right, rgba(124, 58, 237, 0.2), rgba(99, 102, 241, 0.2))'
+                        : 'var(--surface-bg)',
+                      borderWidth: machine === 'slot' ? '0px' : '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'var(--border-color)',
+                      boxShadow: machine === 'slot'
+                        ? '0 0 50px -12px rgba(124, 58, 237, 0.5)'
+                        : 'none'
+                    }}
+                  />
+                  <span className="relative block text-sm font-bold uppercase tracking-wider">
                     Poker machine
                   </span>
                 </button>
 
                 <button
                   onClick={() => handleMachineChange('roulette')}
-                  className={`rounded-xl border px-4 py-3 text-left transition-all ${machine === 'roulette'
-                      ? 'border-emerald-300 bg-emerald-500/20 text-emerald-100 shadow-[0_10px_40px_-20px_rgba(16,185,129,0.7)]'
-                      : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10'
-                    }`}
+                  className="pressable group relative px-6 py-4 text-left rounded-3xl"
+                  style={{ color: machine === 'roulette' ? 'var(--foreground)' : 'var(--text-muted)' }}
                 >
-                  <span className="block text-sm font-medium uppercase tracking-wide text-slate-300">
+                  <div
+                    className="absolute inset-0 rounded-3xl"
+                    style={{
+                      background: machine === 'roulette'
+                        ? 'linear-gradient(to bottom right, rgba(16, 185, 129, 0.2), rgba(20, 184, 166, 0.2))'
+                        : 'var(--surface-bg)',
+                      borderWidth: machine === 'roulette' ? '0px' : '1px',
+                      borderStyle: 'solid',
+                      borderColor: 'var(--border-color)',
+                      boxShadow: machine === 'roulette'
+                        ? '0 0 50px -12px rgba(16, 185, 129, 0.5)'
+                        : 'none'
+                    }}
+                  />
+                  <span className="relative block text-sm font-bold uppercase tracking-wider">
                     Roulette wheel
                   </span>
                 </button>
               </div>
             </div>
 
-            <div className="border-t border-white/10 pt-5">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+            <div className="border-t pt-8 theme-border">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] theme-text-muted mb-4">
                 Simulation runs
               </h3>
-              <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-wider text-slate-400">
-                  <span>1</span>
-                  <span className="text-base font-semibold text-slate-100">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-widest theme-text-muted">1</span>
+                  <span className="text-2xl font-bold theme-text tabular-nums">
                     {runCount.toLocaleString()}
                   </span>
-                  <span>1000</span>
+                  <span className="text-xs uppercase tracking-widest theme-text-muted">1000</span>
                 </div>
                 <input
-                  className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-purple-400"
+                  className="slider-custom mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full accent-violet-500"
+                  style={{ background: 'var(--slider-track)' }}
                   type="range"
                   min={0}
                   max={SLIDER_STEPS}
@@ -426,16 +466,25 @@ export default function Home() {
                   value={runSliderPosition}
                   onChange={(event) => handleSetRunCount(Number(event.target.value))}
                 />
-                <div className="mt-4 grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <button
                     onClick={handleReroll}
-                    className="rounded-xl border border-white/10 bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-white/30 hover:bg-white/20"
+                    className="pressable rounded-2xl px-4 py-2.5 text-xs font-bold uppercase tracking-wider transition-transform duration-200 hover:-translate-y-0.5"
+                    style={{
+                      background: 'linear-gradient(135deg, var(--accent-violet), rgba(124, 58, 237, 0.75))',
+                      color: '#ffffff',
+                      boxShadow: '0 15px 35px rgba(124, 58, 237, 0.25)',
+                    }}
                   >
                     ↻ Rerun
                   </button>
                   <button
                     onClick={handleRemoveAll}
-                    className="rounded-xl border border-white/10 bg-slate-900/60 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 transition hover:border-white/30 hover:bg-white/5"
+                    className="pressable rounded-2xl border px-4 py-2.5 text-xs font-bold uppercase tracking-wider theme-border hover:bg-[var(--surface-hover)]"
+                    style={{
+                      background: 'var(--surface-bg)',
+                      color: 'var(--text-muted)',
+                    }}
                   >
                     Clear
                   </button>
@@ -444,19 +493,20 @@ export default function Home() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] theme-text-muted mb-4">
                 Spins per run
               </h3>
-              <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-wider text-slate-400">
-                  <span>1</span>
-                  <span className="text-base font-semibold text-slate-100">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-widest theme-text-muted">1</span>
+                  <span className="text-2xl font-bold theme-text tabular-nums">
                     {settings.spins}
                   </span>
-                  <span>1000</span>
+                  <span className="text-xs uppercase tracking-widest theme-text-muted">1000</span>
                 </div>
                 <input
-                  className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-indigo-400"
+                  className="slider-custom h-1.5 w-full cursor-pointer appearance-none rounded-full accent-indigo-500"
+                  style={{ background: 'var(--slider-track)' }}
                   type="range"
                   min={1}
                   max={1000}
@@ -464,38 +514,47 @@ export default function Home() {
                   value={settings.spins}
                   onChange={(event) => updateSpins(Number(event.target.value))}
                 />
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {quickSpinPresets.map((value) => (
-                    <button
-                      key={value}
-                      onClick={() => updateSpins(value)}
-                      className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
-                        settings.spins === value
-                          ? 'border-indigo-400 bg-indigo-500/25 text-indigo-100'
-                          : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10'
-                      }`}
-                    >
-                      {value}
-                    </button>
-                  ))}
+                <div className="flex flex-wrap gap-2">
+                  {quickSpinPresets.map((value) => {
+                    const isActive = settings.spins === value;
+                    return (
+                      <button
+                        key={value}
+                        onClick={() => updateSpins(value)}
+                        className="pressable rounded-full border px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-transform duration-150 hover:-translate-y-0.5"
+                        style={{
+                          background: isActive ? 'var(--accent-violet)' : 'var(--surface-bg)',
+                          color: isActive ? 'rgba(255, 255, 255, 0.92)' : 'var(--text-muted)',
+                          boxShadow: isActive ? '0 12px 28px rgba(124, 58, 237, 0.2)' : 'none',
+                          opacity: isActive ? 0.84 : 1,
+                          borderColor: isActive ? 'var(--accent-violet)' : 'var(--border-color)',
+                          borderWidth: '1px',
+                          borderStyle: 'solid',
+                        }}
+                      >
+                        {value}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+              <h3 className="text-sm font-semibold uppercase tracking-[0.2em] theme-text-muted mb-4">
                 Bet size
               </h3>
-              <div className="mt-3 rounded-2xl border border-white/10 bg-white/5 p-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-wider text-slate-400">
-                  <span>$1</span>
-                  <span className="text-base font-semibold text-slate-100">
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-widest theme-text-muted">$1</span>
+                  <span className="text-2xl font-bold theme-text tabular-nums">
                     ${settings.betSize}
                   </span>
-                  <span>$100</span>
+                  <span className="text-xs uppercase tracking-widest theme-text-muted">$100</span>
                 </div>
                 <input
-                  className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-700 accent-amber-400"
+                  className="slider-custom h-1.5 w-full cursor-pointer appearance-none rounded-full accent-amber-500"
+                  style={{ background: 'var(--slider-track)' }}
                   type="range"
                   min={1}
                   max={100}
@@ -507,72 +566,97 @@ export default function Home() {
             </div>
 
             {machine === 'slot' && (
-              <div className="border-t border-white/10 pt-5">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+              <div className="border-t pt-8 theme-border">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] theme-text-muted mb-4">
                   Volatility profile
                 </h3>
-                <div className="mt-3 flex flex-col gap-3">
+                <div className="flex flex-col gap-3">
                   {(Object.keys(slotProfileLabels) as SlotProfile[]).map(
-                    (profile, index) => (
-                      <button
-                        key={profile}
-                        onClick={() => updateSlotProfile(profile)}
-                        className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${settings.machine === 'slot' && settings.profile === profile
-                            ? 'border-indigo-400 bg-indigo-500/15 text-indigo-100'
-                            : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10'
-                          }`}
-                      >
-                        <span
-                          className="mt-1 inline-flex h-2 w-2 shrink-0 rounded-full"
-                          style={{ background: colorForIndex(index) }}
-                          aria-hidden
-                        />
-                        <div>
-                          <span className="text-sm font-medium">
-                            {slotProfileLabels[profile]}
-                          </span>
-                          <p className="mt-1 text-xs text-slate-400">
-                            {profile === 'steady' &&
-                              'Frequent small wins, gentle drawdowns.'}
-                            {profile === 'balanced' &&
-                              'Casino-style balance of hits and swings.'}
-                            {profile === 'volatile' &&
-                              'Long droughts chasing monster jackpots.'}
-                          </p>
-                        </div>
-                      </button>
-                    ),
+                    (profile, index) => {
+                      const isActive = settings.machine === 'slot' && settings.profile === profile;
+                      return (
+                        <button
+                          key={profile}
+                          onClick={() => updateSlotProfile(profile)}
+                          className="pressable relative flex items-start gap-3 overflow-hidden rounded-2xl border px-5 py-4 text-left transition-transform duration-150 hover:-translate-y-0.5"
+                          style={{
+                            background: isActive
+                              ? 'linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(79, 70, 229, 0.25))'
+                              : 'var(--surface-bg)',
+                            color: isActive ? 'var(--foreground)' : 'var(--text-muted)',
+                            borderColor: isActive ? 'rgba(124, 58, 237, 0.35)' : 'var(--border-color)',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            boxShadow: isActive ? '0 18px 40px rgba(124, 58, 237, 0.25)' : 'none',
+                          }}
+                        >
+                          <span
+                            className="mt-1.5 inline-flex h-2 w-2 shrink-0 rounded-full"
+                            style={{
+                              background: colorForIndex(index),
+                              boxShadow: `0 0 16px ${hexToRgba(colorForIndex(index), 0.5)}`,
+                            }}
+                            aria-hidden
+                          />
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold uppercase tracking-wide">
+                              {slotProfileLabels[profile]}
+                            </span>
+                            <p className="mt-1 text-xs theme-text-muted">
+                              {profile === 'steady' &&
+                                'Frequent small wins, gentle drawdowns.'}
+                              {profile === 'balanced' &&
+                                'Casino-style balance of hits and swings.'}
+                              {profile === 'volatile' &&
+                                'Long droughts chasing monster jackpots.'}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    },
                   )}
                 </div>
               </div>
             )}
 
             {machine === 'roulette' && (
-              <div className="border-t border-white/10 pt-5">
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-300">
+              <div className="border-t pt-8 theme-border">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] theme-text-muted mb-4">
                   Bet structure
                 </h3>
-                <div className="mt-3 space-y-3">
+                <div className="space-y-3">
                   {(Object.keys(rouletteBets) as RouletteBet[]).map(
                     (betKey, index) => {
                       const bet = rouletteBets[betKey];
+                      const isActive =
+                        settings.machine === 'roulette' && settings.bet === betKey;
                       return (
                         <button
                           key={betKey}
                           onClick={() => updateRouletteBet(betKey)}
-                          className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-left transition-all ${settings.machine === 'roulette' && settings.bet === betKey
-                              ? 'border-emerald-300 bg-emerald-500/15 text-emerald-100'
-                              : 'border-white/10 bg-white/5 text-slate-300 hover:border-white/25 hover:bg-white/10'
-                            }`}
+                          className="pressable relative flex items-start gap-3 overflow-hidden rounded-2xl border px-5 py-4 text-left transition-transform duration-150 hover:-translate-y-0.5"
+                          style={{
+                            background: isActive
+                              ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(45, 212, 191, 0.24))'
+                              : 'var(--surface-bg)',
+                            color: isActive ? 'var(--foreground)' : 'var(--text-muted)',
+                            borderColor: isActive ? 'rgba(16, 185, 129, 0.35)' : 'var(--border-color)',
+                            borderWidth: '1px',
+                            borderStyle: 'solid',
+                            boxShadow: isActive ? '0 18px 40px rgba(16, 185, 129, 0.25)' : 'none',
+                          }}
                         >
                           <span
-                            className="mt-1 inline-flex h-2 w-2 shrink-0 rounded-full"
-                            style={{ background: colorForIndex(index) }}
+                            className="mt-1.5 inline-flex h-2 w-2 shrink-0 rounded-full"
+                            style={{
+                              background: colorForIndex(index),
+                              boxShadow: `0 0 16px ${hexToRgba(colorForIndex(index), 0.45)}`,
+                            }}
                             aria-hidden
                           />
-                          <div>
-                            <span className="text-sm font-medium">{bet.label}</span>
-                            <p className="mt-1 text-xs text-slate-400">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-bold uppercase tracking-wide">{bet.label}</span>
+                            <p className="mt-1 text-xs theme-text-muted">
                               {`Win chance ${(bet.probability * 100).toFixed(1)}% · payout ${bet.multiplier - 1}:1`}
                             </p>
                           </div>
@@ -585,28 +669,37 @@ export default function Home() {
             )}
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="rounded-3xl border border-white/10 bg-gradient-to-r from-slate-900/85 via-slate-900/60 to-slate-900/85 p-5 shadow-inner">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-yellow-400/15 text-base font-semibold text-yellow-200">
+          <div className="flex flex-col gap-8">
+            <div className="relative overflow-hidden rounded-2xl theme-card">
+              <div
+                className="absolute inset-0 rounded-2xl"
+                style={{
+                  background:
+                    theme === 'dark'
+                      ? 'linear-gradient(135deg, rgba(250, 204, 21, 0.18), rgba(251, 191, 36, 0.08))'
+                      : 'linear-gradient(135deg, rgba(254, 240, 138, 0.35), rgba(253, 224, 71, 0.15))',
+                }}
+              />
+              <div className="relative flex flex-col gap-6 p-8 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-center gap-4">
+                  <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-yellow-400/20 text-2xl font-bold text-yellow-300 shadow-[0_0_30px_-10px_rgba(250,204,21,0.6)]">
                     Σ
                   </span>
                   <div>
-                    <h3 className="text-base font-semibold text-slate-100">
+                    <h3 className="text-lg font-bold theme-text">
                       Total payout outlook
                     </h3>
-                    <p className="text-[10px] uppercase tracking-[0.32em] text-slate-400">
+                    <p className="text-xs uppercase tracking-[0.3em] theme-text-muted">
                       {runCount} {runLabel}
                     </p>
                   </div>
                 </div>
-                <div className="rounded-2xl bg-slate-950/60 px-5 py-2.5 text-right shadow-inner">
-                  <span className="text-xs uppercase tracking-widest text-slate-400">
+                <div className="text-right">
+                  <span className="text-xs uppercase tracking-[0.3em] theme-text-muted">
                     Total final payout
                   </span>
                   <p
-                    className={`mt-1 text-2xl font-semibold ${totalFinal >= 0 ? 'text-emerald-200' : 'text-rose-200'}`}
+                    className={`mt-1.5 text-4xl font-black tabular-nums ${totalFinal >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}
                   >
                     {totalFinal >= 0 ? '+' : '−'}${Math.abs(totalFinal).toFixed(2)}
                   </p>
@@ -614,19 +707,25 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="relative h-[440px] w-full overflow-hidden rounded-3xl border border-white/10 bg-slate-900/40 p-6 shadow-[0_25px_65px_-35px_rgba(15,23,42,0.9)] backdrop-blur">
+            <div
+              className="relative h-[440px] w-full overflow-hidden rounded-3xl border theme-border"
+              style={{
+                background: chartBackground,
+                boxShadow: chartShadow,
+              }}
+            >
               {isVisualizationPaused && (
-                <>
-                  <div className="pointer-events-none absolute top-4 right-4 z-10 flex items-center gap-2 rounded-full border border-amber-400/25 bg-amber-400/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-amber-200 shadow-sm">
-                    <span aria-hidden>⏸</span>
-                    <span>Graph paused at 100 runs</span>
-                  </div>
-                </>
+                <div className="pointer-events-none absolute top-6 right-6 z-10 flex items-center gap-2 bg-amber-400/15 px-4 py-2 text-xs font-bold uppercase tracking-[0.25em] text-amber-300 shadow-[0_0_40px_-12px_rgba(251,191,36,0.5)] backdrop-blur-sm rounded-full">
+                  <span aria-hidden>⏸</span>
+                  <span>Graph paused at 100 runs</span>
+                </div>
               )}
-              <Line options={chartOptions} data={chartData} />
+              <div className="absolute inset-0 p-6">
+                <Line options={chartOptions} data={chartData} />
+              </div>
             </div>
 
-            <div className="space-y-2 max-h-80 overflow-y-auto pr-2 run-scroll">
+            <div className="space-y-3 max-h-96 overflow-y-auto pr-2 run-scroll">
               {displayRuns.map((run) => {
                 const { summary } = run;
                 const winRate =
@@ -638,55 +737,65 @@ export default function Home() {
                 return (
                   <div
                     key={run.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border px-4 py-3 text-xs sm:text-sm backdrop-blur"
+                    className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border px-5 py-4 text-xs sm:text-sm theme-border"
                     style={{
-                      borderColor: hexToRgba(run.color, shouldFadeRuns ? 0.24 : 0.4),
                       background: shouldFadeRuns
-                        ? 'rgba(15, 23, 42, 0.55)'
-                        : 'rgba(15, 23, 42, 0.7)',
+                        ? 'var(--surface-bg)'
+                        : 'var(--surface-alt)',
                     }}
                   >
-                    <div className="flex items-center gap-3">
-                      <span
-                        className="inline-flex h-2 w-8 rounded-full"
-                        style={{ background: hexToRgba(run.color, shouldFadeRuns ? 0.4 : 0.8) }}
-                      />
+                    <div
+                      className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
+                      style={{
+                        background: `linear-gradient(180deg, ${run.color}, ${hexToRgba(run.color, 0.3)})`,
+                        boxShadow: `0 0 20px ${hexToRgba(run.color, 0.4)}`
+                      }}
+                    />
+                    <div className="relative flex items-center gap-4">
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-200">
+                        <p className="text-xs font-bold uppercase tracking-[0.2em] theme-text">
                           {run.name}
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs font-mono theme-text-muted">
                           σ {summary.volatility.toFixed(2)}
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-300">
+                    <div className="relative flex flex-wrap items-center gap-x-5 gap-y-2 theme-text-muted text-xs">
                       <span
-                        className={`font-semibold ${finalPositive ? 'text-emerald-200' : 'text-rose-200'}`}
+                        className={`font-bold tabular-nums ${finalPositive ? 'text-emerald-400' : 'text-rose-400'}`}
                       >
-                        Final {finalPositive ? '+' : '−'}${Math.abs(summary.finalNet).toFixed(2)}
+                        {finalPositive ? '+' : '−'}${Math.abs(summary.finalNet).toFixed(2)}
                       </span>
-                      <span>Wins {winRate.toFixed(1)}%</span>
-                      <span>Losses {lossRate.toFixed(1)}%</span>
-                      <span>Peak ${summary.peak.toFixed(2)}</span>
-                      <span>Drawdown −${Math.abs(summary.trough).toFixed(2)}</span>
+                      <span className="theme-text-muted">Wins {winRate.toFixed(1)}%</span>
+                      <span className="theme-text-muted">Loss {lossRate.toFixed(1)}%</span>
+                      <span className="theme-text-muted">Peak ${summary.peak.toFixed(2)}</span>
+                      <span className="theme-text-muted">DD −${Math.abs(summary.trough).toFixed(2)}</span>
                     </div>
                   </div>
                 );
               })}
               {tailSummary && (
-                <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-dashed border-white/15 bg-slate-900/40 px-4 py-3 text-xs sm:text-sm text-slate-300">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-semibold uppercase tracking-[0.25em] text-slate-400">
+                <div className="relative flex flex-wrap items-center justify-between gap-4 overflow-hidden rounded-2xl border border-dashed px-5 py-4 text-xs sm:text-sm theme-border">
+                  <div
+                    className="absolute inset-0 rounded-2xl"
+                    style={{
+                      background: 'var(--surface-bg)',
+                      backgroundImage:
+                        'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(124, 58, 237, 0.08) 10px, rgba(124, 58, 237, 0.08) 20px)',
+                    }}
+                  />
+                  <div className="relative flex flex-col">
+                    <span className="text-xs font-bold uppercase tracking-[0.2em] theme-text-muted">
                       +{tailSummary.count} aggregated runs (not visualized)
                     </span>
-                    <span className="text-sm font-semibold text-slate-100">
-                      Total final {tailSummary.totalFinal >= 0 ? '+' : '−'}${Math.abs(tailSummary.totalFinal).toFixed(2)}
+                    <span className="mt-1 text-sm font-bold theme-text tabular-nums">
+                      Total {tailSummary.totalFinal >= 0 ? '+' : '−'}${Math.abs(tailSummary.totalFinal).toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 text-xs sm:text-sm">
+                  <div className="relative flex items-center gap-5 text-xs theme-text-muted">
                     <span>Wins {tailSummary.winRate.toFixed(1)}%</span>
-                    <span>Losses {tailSummary.lossRate.toFixed(1)}%</span>
+                    <span>Loss {tailSummary.lossRate.toFixed(1)}%</span>
                   </div>
                 </div>
               )}

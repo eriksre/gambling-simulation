@@ -1,11 +1,15 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+import type { Metadata, Viewport } from "next";
+import { ThemeProvider } from "./lib/theme-context";
+import { Navigation } from "./components/navigation";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Monte Carlo Casino Lab",
   description:
     "Run Monte Carlo betting experiments and visualise variance against the house edge.",
+};
+
+export const viewport: Viewport = {
   themeColor: "#0f172a",
 };
 
@@ -17,15 +21,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        <nav className="fixed right-6 top-6 z-50">
-          <Link
-            href="/about"
-            className="inline-flex items-center rounded-full border border-white/10 bg-slate-900/70 px-4 py-2 text-sm font-semibold uppercase tracking-[0.28em] text-slate-100 shadow-lg transition hover:border-white/40 hover:text-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 backdrop-blur"
-          >
-            About
-          </Link>
-        </nav>
-        {children}
+        <ThemeProvider>
+          <Navigation />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

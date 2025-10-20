@@ -78,23 +78,38 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
-      <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-14 px-6 py-24 lg:px-10">
-        <header className="flex flex-col items-center gap-5 text-center">
-          <p className="text-xs uppercase tracking-[0.32em] text-slate-400">
+    <main className="min-h-screen relative overflow-hidden" style={{ background: 'var(--background)' }}>
+      <div className="fixed inset-0 opacity-40 dark:opacity-100 transition-opacity" style={{ background: 'linear-gradient(to bottom right, var(--gradient-from), transparent)' }} />
+      <div className="fixed inset-0 backdrop-blur-[120px]" style={{ background: 'radial-gradient(circle at 20% 20%, var(--gradient-from) 0%, transparent 50%)' }} />
+
+      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-16 px-6 py-24 lg:px-12">
+        <header className="flex flex-col items-center gap-6 text-center">
+          <p className="text-xs uppercase tracking-[0.4em] font-medium" style={{ color: 'var(--text-muted)' }}>
             Founders
           </p>
-          <h1 className="text-4xl font-semibold text-slate-100 md:text-5xl">
-            The minds behind Monte Carlo Casino Lab
+          <h1 className="text-5xl font-bold md:text-6xl leading-tight" style={{ color: 'var(--foreground)' }}>
+            The minds behind<br />Monte Carlo Casino Lab
           </h1>
           <Link
             href="/"
-            className="group relative inline-flex items-center justify-center gap-3 rounded-full border border-sky-400/60 bg-sky-500/20 px-6 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-sky-100 shadow-[0_20px_55px_-32px_rgba(56,189,248,0.9)] transition-all duration-300 hover:border-sky-300 hover:bg-sky-500/30 hover:text-sky-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/80 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            className="pressable group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full px-8 py-4 text-sm font-bold uppercase tracking-[0.25em] transition-transform duration-300 hover:-translate-y-0.5"
+            style={{ color: '#ffffff' }}
           >
-            Back to simulator
+            <div
+              className="absolute inset-0 rounded-full transition-all"
+              style={{
+                background: 'linear-gradient(135deg, rgba(124, 58, 237, 0.75), rgba(99, 102, 241, 0.65))',
+                boxShadow: '0 18px 45px rgba(124, 58, 237, 0.35)',
+              }}
+            />
+            <span className="relative">Back to simulator</span>
             <span
               aria-hidden
-              className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-sky-300/60 bg-sky-500/30 text-xs font-bold transition-transform duration-300 group-hover:translate-x-1 group-focus-visible:translate-x-1"
+              className="relative inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-transform duration-300 group-hover:translate-x-1"
+              style={{
+                background: 'rgba(255, 255, 255, 0.18)',
+                color: '#ffffff',
+              }}
             >
               ↺
             </span>
@@ -105,18 +120,30 @@ export default function AboutPage() {
           {leadershipProfiles.map((profile) => (
             <article
               key={profile.name}
-              className="group flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_25px_65px_-35px_rgba(15,23,42,0.9)] backdrop-blur transition duration-300 hover:border-sky-300/40 hover:shadow-[0_35px_75px_-35px_rgba(56,189,248,0.5)]"
+              className="group relative flex flex-col overflow-hidden rounded-3xl p-8 transition duration-300 theme-card"
             >
-              <div className="flex flex-col gap-3">
-                <h2 className="text-2xl font-semibold text-slate-100">
+              <div
+                className="absolute inset-0 rounded-3xl transition-opacity duration-300 group-hover:opacity-100"
+                style={{
+                  background:
+                    'radial-gradient(circle at top left, rgba(124, 58, 237, 0.16), transparent 65%)',
+                  opacity: 0.75,
+                }}
+              />
+
+              <div className="relative flex flex-col gap-4">
+                <h2 className="text-3xl font-bold theme-text">
                   {profile.name}
                 </h2>
-                <p className="text-xs uppercase tracking-[0.28em] text-slate-400">
+                <p className="text-xs uppercase tracking-[0.3em] theme-text-muted">
                   {profile.title}
                 </p>
               </div>
 
-              <div className="mt-8 flex-1 rounded-2xl border border-white/10 bg-slate-950/60 p-4 shadow-inner">
+              <div
+                className="relative mt-8 flex-1 rounded-3xl border p-5 backdrop-blur-sm theme-border"
+                style={{ background: 'var(--surface-bg)' }}
+              >
                 <div className="linkedin-embed min-h-[360px] w-full overflow-hidden">
                   <div
                     className="badge-base LI-profile-badge"
@@ -141,14 +168,15 @@ export default function AboutPage() {
                 href={profile.linkedinUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 transition hover:text-sky-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                className="relative mt-8 inline-flex items-center gap-2 text-sm font-bold transition-colors duration-200 group/link"
+                style={{ color: 'var(--accent-violet)' }}
               >
                 View full LinkedIn profile
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="h-4 w-4"
+                  className="h-4 w-4 transition-transform group-hover/link:translate-x-1"
                   aria-hidden
                 >
                   <path d="M6 4a1 1 0 0 1 1-1h9.5a.5.5 0 0 1 .5.5V13a1 1 0 1 1-2 0V7.414l-9.293 9.293a1 1 0 0 1-1.414-1.414L13.586 6H7a1 1 0 0 1-1-1V4Z" />
