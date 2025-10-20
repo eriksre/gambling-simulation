@@ -192,6 +192,7 @@ export default function Home() {
         label: 'Mean payout',
         data: meanLine,
         borderColor: '#FACC15',
+        backgroundColor: 'rgba(250, 204, 21, 0.12)',
         borderWidth: 3.2,
         pointRadius: 0,
         tension: 0.22,

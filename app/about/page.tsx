@@ -8,13 +8,12 @@ type LeadershipProfile = {
   name: string;
   title: string;
   linkedinUrl: string;
+  linkedinVanity: string;
 };
 
 declare global {
   interface Window {
-    IN?: {
-      parse: () => void;
-    };
+    LIRenderAll?: () => void;
   }
 }
 
@@ -23,29 +22,30 @@ const leadershipProfiles: LeadershipProfile[] = [
     name: 'Eriks Reinfelds',
     title: 'CEO · Lead Design Architect',
     linkedinUrl: 'https://www.linkedin.com/in/eriksre/',
+    linkedinVanity: 'eriksre',
   },
   {
     name: 'Harris Hisham',
     title: 'CFO · Design Consultant',
     linkedinUrl: 'https://www.linkedin.com/in/harris-hisham-45b670209/',
+    linkedinVanity: 'harris-hisham-45b670209',
   },
 ];
 
 export default function AboutPage() {
   useEffect(() => {
-    window.IN?.parse();
+    window.LIRenderAll?.();
   }, []);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-100">
       <Script
-        src="https://platform.linkedin.com/in.js"
+        src="https://platform.linkedin.com/badges/js/profile.js"
         strategy="afterInteractive"
-        id="linkedin-platform-init"
-        onLoad={() => window.IN?.parse()}
-      >
-        {`lang: en_US`}
-      </Script>
+        id="linkedin-badges-init"
+        onLoad={() => window.LIRenderAll?.()}
+        onReady={() => window.LIRenderAll?.()}
+      />
       <div className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-14 px-6 py-24 lg:px-10">
         <header className="flex flex-col items-center gap-5 text-center">
           <p className="text-xs uppercase tracking-[0.32em] text-slate-400">
@@ -84,12 +84,24 @@ export default function AboutPage() {
               </div>
 
               <div className="mt-8 flex-1 rounded-2xl border border-white/10 bg-slate-950/60 p-4 shadow-inner">
-                <div
-                  className="linkedin-embed min-h-[330px] w-full"
-                  dangerouslySetInnerHTML={{
-                    __html: `<script type="IN/MemberProfile" data-id="${profile.linkedinUrl}" data-format="inline" data-related="false" data-iframe="true"></script>`,
-                  }}
-                />
+                <div className="linkedin-embed min-h-[330px] w-full">
+                  <div
+                    className="badge-base LI-profile-badge"
+                    data-locale="en_US"
+                    data-size="large"
+                    data-theme="dark"
+                    data-type="VERTICAL"
+                    data-vanity={profile.linkedinVanity}
+                    data-version="v1"
+                  >
+                    <a
+                      className="badge-base__link LI-simple-link"
+                      href={profile.linkedinUrl}
+                    >
+                      {profile.name}
+                    </a>
+                  </div>
+                </div>
               </div>
 
               <a
