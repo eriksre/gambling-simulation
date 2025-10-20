@@ -1,3 +1,25 @@
+# Monte Carlo Casino
+
+Run a monte carlo simulation of a poker machine or roulette wheel.
+
+
+id like a little about page with two peoples linked ins displayed. if you can embed the linked in profiles side by side, that would be great:
+
+Eriks Reinfelds: https://www.linkedin.com/in/eriksre/
+Harris Hisham: https://www.linkedin.com/in/harris-hisham-45b670209/
+
+
+Eriks is the CEO and lead design architect
+Harris is the CFO design consultant
+
+
+change the limits on the number of simulations to 1k. and make it render up to 100, and then put a text thing up when you get above 100 on the slider so that it indicates that it's paused the visualation. also, make the scroll bar visible for the runs thing, but make it elegant still. also, we should be able to see the volatility profile - it's too low on the screen. also, remove the hover labels from the graph entirely, we don't need those. 
+
+for some reason, the expected value of the medium risk poker machine option seems to be higher than the steady and balanced profile. lets change that please so that the expected values are actually correct. 
+
+
+
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
