@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "./lib/theme-context";
 import { Navigation } from "./components/navigation";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -28,6 +29,7 @@ export default function RootLayout({
           <Navigation />
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
